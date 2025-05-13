@@ -81,7 +81,6 @@ def clicker():
 
 @app.route('/click', methods=['POST'])
 def click():
-    # handle +1 click logic with multiplier
     pass
 
 @app.route('/leaderboard')

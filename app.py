@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
+from flask import jsonify
 import time
 import random
 
@@ -68,20 +69,53 @@ def login(): #the form
 
     return render_template('login.html')
 
-@app.route('/logout')
+""" @app.route('/logout')
 def logout():
     if 'user_id' not in session:
-        return redirect(url_for('login'))
+        return redirect(url_for('login')) """
 @app.route('/clicker')
 def clicker():
     if 'user_id' not in session:
         return redirect(url_for('login'))
+    
     user = User.query.get(session['user_id'])
-    return render_template('clicker.html', clicks=user.total_clicks)
+    login_time = datetime.fromtimestamp(session.get('login_time', time.time()))
+    
+    # Time online in current session
+    current_time = datetime.utcnow()
+    session_time = (current_time - login_time).total_seconds()
 
+    return render_template(
+        'clicker.html',
+        clicks=user.total_clicks,
+        multiplier=user.multiplier,
+        multiplier_expires=user.multiplier_expires,
+        session_time=session_time
+    )
 @app.route('/click', methods=['POST'])
 def click():
-    pass
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    user = User.query.get(session['user_id'])
+
+    # Check if multiplier is still active
+    now = datetime.utcnow()
+    if user.multiplier_expires and user.multiplier_expires < now:
+        user.multiplier = 1.0
+        user.multiplier_expires = None
+
+    # Apply multiplier to click
+    added_clicks = int(1 * user.multiplier)
+    user.total_clicks += added_clicks
+
+    db.session.commit()
+
+    # Return updated clicks as JSON
+    return jsonify({
+        'clicks': user.total_clicks  # Return only the updated click count
+    })
+
 
 @app.route('/leaderboard')
 def leaderboard():
@@ -90,8 +124,12 @@ def leaderboard():
 
 @app.route('/admin')
 def admin():
-    # list all users and stats
-    pass
+    # Fetch all users
+    users = User.query.all()
+
+    # Render the admin page with all users' data
+    return render_template('admin.html', users=users)
+
 
 @app.errorhandler(404)
 def page_not_found(error):

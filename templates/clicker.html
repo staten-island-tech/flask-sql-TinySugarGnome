@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicker Game</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Welcome to the Clicker Game</h1>
+    
+    <!-- Display the current click count -->
+    <p>Total Clicks: <span id="total-clicks">{{ clicks }}</span></p>
+
+    <!-- Click button -->
+    <button id="click-btn">Click Me!</button>
+
+    <script>
+        $(document).ready(function() {
+            // Trigger click event
+            $('#click-btn').click(function() {
+                $.ajax({
+                    url: "{{ url_for('click') }}",  // Route for clicking
+                    type: "POST",  // Send POST request
+                    success: function(response) {
+                        // Update the click count on the page
+                        $('#total-clicks').text(response.clicks);
+                    },
+                    error: function() {
+                        alert("Error: Unable to process your click.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

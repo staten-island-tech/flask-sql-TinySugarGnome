@@ -1,0 +1,70 @@
+/* General Body Styles */
+body {
+    font-family: 'Press Start 2P', cursive;
+    background-color: #f4f4f4;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Title Styling */
+h1 {
+    color: black; /* Title color set to black */
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 2rem;
+}
+
+/* Container for content (ensures vertical centering) */
+.center-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    justify-content: center;
+    height: 100%; /* Takes full height */
+}
+
+/* Button Styling */
+#click-btn {
+    font-size: 2rem; /* Make the click button bigger */
+    padding: 1rem 2rem;
+    border: 2px solid #000; /* Add border to show the outline */
+    outline: none; /* Remove default outline */
+}
+
+#logout-btn {
+    font-size: 1.5rem; /* Make logout button slightly bigger */
+    padding: 1rem 2rem;
+    margin-top: auto; /* Push logout button to the bottom */
+    border: 2px solid #000; /* Add border to show the outline */
+    outline: none; /* Remove default outline */
+}
+
+/* NES Button Styles (Ensuring buttons are visually consistent) */
+.nes-btn {
+    font-size: 1.5rem;
+    padding: 1rem 2rem;
+}
+
+/* NES Button Sizes */
+.nes-btn.is-primary {
+    background-color: #007bff;
+    color: white;
+    border: 2px solid #000; /* Add border to NES primary button */
+}
+
+.nes-btn.is-error {
+    background-color: #dc3545;
+    color: white;
+    border: 2px solid #000; /* Add border to NES error button */
+}
+
+/* Fix for button outline on focus */
+.nes-btn:focus {
+    outline: none; /* Remove default outline */
+}

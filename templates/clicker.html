@@ -4,16 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clicker Game</title>
+
+    <!-- NES.css and font -->
+    <link href="https://unpkg.com/nes.css/css/nes.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #f4f4f4;
+            padding: 2rem;
+        }
+
+        h1 {
+            color: black; /* Change title text color to black */
+            text-align: center;
+        }
+
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to the Clicker Game</h1>
-    
-    <!-- Display the current click count -->
-    <p>Total Clicks: <span id="total-clicks">{{ clicks }}</span></p>
 
-    <!-- Click button -->
-    <button id="click-btn">Click Me!</button>
+    <h1>poopp</h1>
+
+    <div class="nes-container with-title is-centered center-content">
+
+        <!-- Display the current click count -->
+        <p>Total Clicks: <span id="total-clicks" class="nes-text is-success">{{ clicks }}</span></p>
+
+        <!-- Click button -->
+        <button id="click-btn" class="nes-btn is-primary">Click Me!</button>
+
+        <!-- Logout button -->
+        <form action="{{ url_for('logout') }}" method="get">
+            <button type="submit" class="nes-btn is-error">Logout</button>
+        </form>
+    </div>
 
     <script>
         $(document).ready(function() {
@@ -33,5 +68,6 @@
             });
         });
     </script>
+
 </body>
 </html>

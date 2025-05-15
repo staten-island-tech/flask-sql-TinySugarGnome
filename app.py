@@ -69,10 +69,22 @@ def login(): #the form
 
     return render_template('login.html')
 
-""" @app.route('/logout')
+@app.route('/logout')
 def logout():
-    if 'user_id' not in session:
-        return redirect(url_for('login')) """
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+
+        login_time = datetime.fromtimestamp(session.get('login_time', time.time()))  # local time
+        current_time = datetime.now()  # also local time
+        session_time = (current_time - login_time).total_seconds()
+
+        user.total_time += round(session_time, 2)  # ⬅️ Rounded
+        db.session.commit()
+
+    session.clear()
+    flash("You have been logged out.", "info")
+    return redirect(url_for('login'))
+
 @app.route('/clicker')
 def clicker():
     if 'user_id' not in session:

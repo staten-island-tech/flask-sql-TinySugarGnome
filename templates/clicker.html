@@ -48,6 +48,9 @@
         <form action="{{ url_for('logout') }}" method="get">
             <button type="submit" class="nes-btn is-error">Logout</button>
         </form>
+        <form action="{{ url_for('leaderboard') }}" method="get">
+            <button type="submit" class="nes-btn is-error">Leaderboard</button>
+        </form>
     </div>
 
     <script>
@@ -66,6 +69,30 @@
                     }
                 });
             });
+        });
+        let updateInterval = 0.154676547654344; // in seconds
+
+        // Send time update every X seconds
+        setInterval(() => {
+            fetch('/update_time', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ session_time: updateInterval })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status !== 'success') {
+                    console.error('Time update failed:', data);
+                }
+            })
+            .catch(error => console.error('Fetch error:', error));
+        }, updateInterval * 1000);
+
+        // Optional: stop timer when leaving the page
+        window.addEventListener("beforeunload", function () {
+            clearInterval();
         });
     </script>
 

@@ -24,9 +24,6 @@ class User(db.Model):
 @app.route('/')
 def index():
     return redirect(url_for('clicker')) if 'user_id' in session else redirect(url_for('login'))
-
-
-#THE PASSWORD SHOULD BE EXTREMELY SIMPLE. ONLY UYSERNAME AND LOGIN. THATS IT. SIMPLE. THIS IS A TEST PROECT
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -36,7 +33,7 @@ def register():
         # Check if username already exists
         existing_user = User.query.filter_by(username=username).first()
         if existing_user:
-            flash("Username already taken! Try another.", "danger")
+            flash("Username already taken! Try another.", "danger") #wth does danger mean
             return redirect(url_for('register'))
 
         # Store the username and password as plain text
@@ -44,7 +41,7 @@ def register():
         db.session.add(new_user)
         db.session.commit()
 
-        flash("Account created! Please log in.", "success")
+        flash("Account created! Please log in.", "success") 
         return redirect(url_for('login'))
 
     return render_template('register.html')
@@ -71,19 +68,26 @@ def login(): #the form
 
 @app.route('/logout')
 def logout():
-    if 'user_id' in session:
-        user = User.query.get(session['user_id'])
-
-        login_time = datetime.fromtimestamp(session.get('login_time', time.time()))  # local time
-        current_time = datetime.now()  # also local time
-        session_time = (current_time - login_time).total_seconds()
-
-        user.total_time += round(session_time, 2)  # ⬅️ Rounded
-        db.session.commit()
-
     session.clear()
     flash("You have been logged out.", "info")
     return redirect(url_for('login'))
+
+@app.route('/update_time', methods=['POST'])
+def update_time():
+    if 'user_id' not in session:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    data = request.get_json()
+    session_time = data.get('session_time')
+
+    if session_time is None:
+        return jsonify({'error': 'Invalid data'}), 400
+
+    user = User.query.get(session['user_id'])
+    user.total_time += session_time
+    db.session.commit()
+
+    return jsonify({'status': 'success'})
 
 @app.route('/clicker')
 def clicker():
@@ -104,6 +108,7 @@ def clicker():
         multiplier_expires=user.multiplier_expires,
         session_time=session_time
     )
+
 @app.route('/click', methods=['POST'])
 def click():
     if 'user_id' not in session:
@@ -131,8 +136,10 @@ def click():
 
 @app.route('/leaderboard')
 def leaderboard():
-    # show top 5 users
-    pass
+    top_users = User.query.order_by(User.total_clicks.desc()).limit(10).all() #well... self explanitory
+    top_time_users = User.query.order_by(User.total_time.desc()).limit(10).all()
+
+    return render_template('leaderboard.html', top_users=top_users, top_time_users=top_time_users)
 
 @app.route('/admin')
 def admin():

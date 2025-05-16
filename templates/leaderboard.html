@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Leaderboard</title>
+  <link href="https://unpkg.com/nes.css/css/nes.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+  <style>
+    body {
+      padding: 20px;
+      font-family: 'Press Start 2P', cursive;
+      background-color: #f4f4f4;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .leaderboards {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .leaderboard-section {
+      flex: 1 1 45%;
+    }
+
+    .nes-container {
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .leaderboard-section {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="nes-text is-primary">🏆 Leaderboard</h1>
+
+  <div class="leaderboards">
+    <!-- Top Clicks (Light Theme) -->
+    <section class="leaderboard-section">
+      <div class="nes-container with-title is-rounded">
+        <p class="title">Top 5 by Clicks</p>
+        <div class="nes-table-responsive">
+          <table class="nes-table is-bordered is-centered">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Username</th>
+                <th>Total Clicks</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in top_users %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.total_clicks }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="3">No data available.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Top Time (Dark Theme) -->
+    <section class="leaderboard-section">
+      <div class="nes-container is-dark with-title is-rounded">
+        <p class="title">Top 5 by Time Played</p>
+        <div class="nes-table-responsive">
+          <table class="nes-table is-bordered is-dark">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Username</th>
+                <th>Total Time (s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in top_time_users %}
+              <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.total_time | round(2) }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="3">No data available.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</body>
+</html>

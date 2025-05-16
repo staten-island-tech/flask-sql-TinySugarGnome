@@ -28,7 +28,7 @@
                 <td>{{ user.username }}</td>
                 <td>{{ user.password }}</td>
                 <td>{{ user.total_clicks }}</td>
-                <td>{{ user.total_time }}</td>
+                <td>{{ user.total_time | round(2) }}</td>
                 <td>{{ user.multiplier }}</td>
                 <td>{{ user.multiplier_expires if user.multiplier_expires else 'N/A' }}</td>
             </tr>

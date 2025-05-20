@@ -16,6 +16,9 @@
             font-family: 'Press Start 2P', cursive;
             background-color: #f4f4f4;
             padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         h1 {
@@ -23,28 +26,12 @@
             text-align: center;
         }
 
-        .center-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .nes-container.with-title {
-            border: none !important;
-            box-shadow: none !important;
-            padding: 1.5rem !important;
-            margin-top: 15rem; /* Push all UI down */
-        }
-
-        /* Separate Total Clicks UI and Form Buttons */
         .total-clicks-container {
             display: flex;
             justify-content: center;
             width: 100%;
-            font-size: 2rem;
-            margin-top: -150px; 
+            font-size: 2.5rem;
+            margin-top: 7rem; /* Adjust this margin as per your preference */
         }
 
         .form-buttons-container {
@@ -53,23 +40,36 @@
             gap: 1rem;
             align-items: center;
             width: 100%;
+            margin-top: 7rem; /* Adjust this margin to control the vertical space between sections */
+        }
+
+        /* Optional: Keep the container styles separate */
+        .nes-container.with-title {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 1.5rem !important;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* Make sure buttons inside the form-buttons-container are aligned properly */
+        .nes-btn {
+            width: 200px;
         }
     </style>
 </head>
 <body>
 
-    <h1>poopp</h1>
+    <h1>Clicker Game</h1>
 
-    <div class="nes-container with-title is-centered center-content">
-        
-        <!-- Separate Total Clicks UI Section -->
-        <div class="total-clicks-container">
-            <p class="totalclicks">Total Clicks: <span id="total-clicks" class="nes-text is-success">{{ clicks }}</span></p>
-        </div>
+    <!-- Total Clicks Section -->
+    <div class="total-clicks-container">
+        <p class="totalclicks">Total Clicks: <span id="total-clicks" class="nes-text is-success">{{ clicks }}</span></p>
+    </div>
 
-        <!-- Separate Form Buttons Section -->
+    <!-- Form Buttons Section -->
+    <div class="nes-container with-title is-centered">
         <div class="form-buttons-container">
-            <!-- Click button -->
             <button id="click-btn" class="nes-btn is-primary">Click Me!</button>
 
             <!-- Logout button -->
@@ -80,7 +80,6 @@
                 <button type="submit" class="nes-btn custom-yellow-btn">Leaderboard</button>
             </form>
         </div>
-
     </div>
 
     <script>

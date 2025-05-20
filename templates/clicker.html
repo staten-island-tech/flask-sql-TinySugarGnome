@@ -92,37 +92,15 @@
                     success: function(response) {
                         // Update the click count on the page
                         $('#total-clicks').text(response.clicks);
+                        if (response.multiplier > 1) {
+                            $('#multiplier-indicator').text('Multiplier: x' + response.multiplier);
+                        }
                     },
                     error: function() {
                         alert("Error: Unable to process your click.");
                     }
                 });
             });
-        });
-
-        let updateInterval = 0.154676547654344; // in seconds
-
-        // Send time update every X seconds
-        setInterval(() => {
-            fetch('/update_time', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ session_time: updateInterval })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status !== 'success') {
-                    console.error('Time update failed:', data);
-                }
-            })
-            .catch(error => console.error('Fetch error:', error));
-        }, updateInterval * 1000);
-
-        // Optional: stop timer when leaving the page
-        window.addEventListener("beforeunload", function () {
-            clearInterval();
         });
     </script>
 

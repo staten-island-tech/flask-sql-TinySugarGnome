@@ -38,14 +38,14 @@ public class MultiplierManager {
         // Random chance for multipliers (per user)
         // Example: 1% chance to give a random multiplier for a user every second
         for (Integer userId : userMultipliers.keySet()) {
-            if (random.nextInt(100) == 0) {
+            if (random.nextInt(1) == 0) {
                 // Give user a x2 multiplier for 30 seconds
                 userMultipliers.put(userId, 2);
                 multiplierExpires.put(userId, currentTime + 30000);  // Expire in 30 seconds
                 System.out.println("User " + userId + " gets x2 multiplier for 30 seconds!");
             }
 
-            if (random.nextInt(500) == 0) {
+            if (random.nextInt(5) == 0) {
                 // Give user a x10 multiplier for 20 seconds
                 userMultipliers.put(userId, 10);
                 multiplierExpires.put(userId, currentTime + 20000);  // Expire in 20 seconds

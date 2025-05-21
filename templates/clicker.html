@@ -43,7 +43,6 @@
             margin-top: 7rem; /* Adjust this margin to control the vertical space between sections */
         }
 
-        /* Optional: Keep the container styles separate */
         .nes-container.with-title {
             border: none !important;
             box-shadow: none !important;
@@ -52,9 +51,15 @@
             max-width: 500px;
         }
 
-        /* Make sure buttons inside the form-buttons-container are aligned properly */
         .nes-btn {
             width: 200px;
+        }
+
+        /* Styling for multiplier */
+        .multiplier-container {
+            font-size: 2rem;
+            margin-top: 2rem;
+            color: green;
         }
     </style>
 </head>
@@ -65,6 +70,11 @@
     <!-- Total Clicks Section -->
     <div class="total-clicks-container">
         <p class="totalclicks">Total Clicks: <span id="total-clicks" class="nes-text is-success">{{ clicks }}</span></p>
+    </div>
+
+    <!-- Multiplier Section -->
+    <div class="multiplier-container">
+        <p id="multiplier-indicator">Multiplier: x1</p>
     </div>
 
     <!-- Form Buttons Section -->
@@ -84,6 +94,26 @@
 
     <script>
         $(document).ready(function() {
+            // Function to check the active multiplier from the server
+            function checkMultiplier() {
+                $.ajax({
+                    url: "{{ url_for('multiplier_check') }}",  // Call the multiplier-check route
+                    type: "GET",
+                    success: function(response) {
+                        // Update the multiplier display
+                        let multiplier = response.multiplier;
+                        if (multiplier > 1) {
+                            $('#multiplier-indicator').text('Multiplier: x' + multiplier);
+                        } else {
+                            $('#multiplier-indicator').text('Multiplier: x1');
+                        }
+                    },
+                    error: function() {
+                        alert("Error: Unable to fetch multiplier.");
+                    }
+                });
+            }
+
             // Trigger click event
             $('#click-btn').click(function() {
                 $.ajax({
@@ -92,15 +122,18 @@
                     success: function(response) {
                         // Update the click count on the page
                         $('#total-clicks').text(response.clicks);
-                        if (response.multiplier > 1) {
-                            $('#multiplier-indicator').text('Multiplier: x' + response.multiplier);
-                        }
+
+                        // Check and update the multiplier after each click
+                        checkMultiplier();
                     },
                     error: function() {
                         alert("Error: Unable to process your click.");
                     }
                 });
             });
+
+            // Call the checkMultiplier function to ensure the multiplier is updated on page load
+            checkMultiplier();
         });
     </script>
 

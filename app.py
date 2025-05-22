@@ -136,6 +136,7 @@ def click():
         'clicks': user.total_clicks,
         'multiplier': user.multiplier,
         'expires': user.multiplier_expires.isoformat() if user.multiplier_expires else None
+        
     })
 
 @app.route('/leaderboard')
@@ -163,29 +164,57 @@ def internal_server_error(error):
     return render_template('500.html'), 500
 
 
-with app.app_context():
-    db.create_all()
-
 def random_multiplier_loop():
     while True:
-        with app.app_context():  # Add this line to push an application context
+        with app.app_context():  # Ensure Flask's app context is available
             users = User.query.all()
             now = datetime.utcnow()
 
             for user in users:
                 if user.multiplier_expires and user.multiplier_expires < now:
-                    user.multiplier = 1
+                    user.multiplier = 1  # Reset multiplier when expired
                     user.multiplier_expires = None
 
-                if random.randint(1, 100) == 1:
-                    user.multiplier = 2
+                # Random multiplier logic
+                new_multiplier = user.multiplier  # Default to current multiplier
+
+                if random.randint(1, 10) == 1:
+                    new_multiplier = 2
                     user.multiplier_expires = now + timedelta(seconds=30)
-                elif random.randint(1, 500) == 1:
-                    user.multiplier = 10
+                elif random.randint(1, 50) == 1:
+                    new_multiplier = 10
                     user.multiplier_expires = now + timedelta(seconds=20)
+                elif random.randint(1, 250) == 1:
+                    new_multiplier = 30
+                    user.multiplier_expires = now + timedelta(seconds=10)
+                elif random.randint(1, 500) == 1:
+                    new_multiplier = 50
+                    user.multiplier_expires = now + timedelta(seconds=15)
+                elif random.randint(1, 1000) == 1:
+                    new_multiplier = 100
+                    user.multiplier_expires = now + timedelta(seconds=10)
+
+                # Update multiplier only if the new one is greater than the current one
+                if new_multiplier > user.multiplier:
+                    user.multiplier = new_multiplier
+                    print(f'New multi: {user.multiplier}') 
 
             db.session.commit()
-        time.sleep(1)  # Check every second
+        time.sleep(1)  # Wait for 1 second before checking again
+
+
+# Start the background thread when the app starts
+def start_background_task():
+    thread = threading.Thread(target=random_multiplier_loop)
+    thread.daemon = True  # This makes sure the thread will close when the main program ends
+    thread.start()
+
+# Create the database tables on startup
+with app.app_context():
+    db.create_all()
+
+# Run the background task
+start_background_task()
 
 if __name__ == '__main__':
     app.run(debug=True)

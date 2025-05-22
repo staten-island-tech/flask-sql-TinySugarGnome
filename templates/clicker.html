@@ -117,16 +117,17 @@
                     success: function (response) {
                         $('#total-clicks').text(response.clicks);
                         let multiplier = response.multiplier;
-
-                        if (multiplier > 1) {
+    
+                        // Check if the multiplier has changed
+                        if (response.multiplier_changed) {
                             $('#multiplier-indicator').text('Multiplier: x' + multiplier);
                             $('#multiplier-bubble').text('x' + multiplier + '!').removeClass('hidden');
-
+    
                             setTimeout(() => {
                                 $('#multiplier-bubble').addClass('hidden');
                             }, 1000);
                         } else {
-                            $('#multiplier-indicator').text('Multiplier: x1');
+                            $('#multiplier-indicator').text('Multiplier: x' + multiplier);
                         }
                     },
                     error: function () {

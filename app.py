@@ -26,28 +26,6 @@ class User(db.Model):
 current_multiplier = 1
 multiplier_expires = 0  # epoch ms (in milliseconds)
 
-def run_java_multiplier():
-    global current_multiplier, multiplier_expires
-    process = subprocess.Popen(['java', 'MultiplierManager'], stdout=subprocess.PIPE, text=True)
-    while True:
-        line = process.stdout.readline()
-        if line:
-            try:
-                val = int(line.strip())
-                if val in [2, 10]:
-                    current_multiplier = val
-                    expires_line = process.stdout.readline()
-                    multiplier_expires = int(expires_line.strip())
-            except ValueError:
-                continue
-
-def get_active_multiplier():
-    if time.time() * 1000 > multiplier_expires:
-        return 1
-    return current_multiplier
-
-# Start background Java multiplier thread
-threading.Thread(target=run_java_multiplier, daemon=True).start()
 # -------------------- ROUTES -------------------- #
 @app.route('/')
 def index():
@@ -145,27 +123,20 @@ def click():
 
     user = User.query.get(session['user_id'])
 
-    # Check if the user's multiplier is still active
+    # Reset multiplier if expired
     if user.multiplier_expires and user.multiplier_expires < datetime.utcnow():
-        # If expired, reset multiplier to 1 and expiration time
         user.multiplier = 1
         user.multiplier_expires = None
 
-    # Use the user's own multiplier to calculate the clicks
-    added_clicks = int(1 * user.multiplier)
+    added_clicks = 1 * user.multiplier
     user.total_clicks += added_clicks
-
     db.session.commit()
 
     return jsonify({
-        'clicks': user.total_clicks  # Return the updated click count for the user
+        'clicks': user.total_clicks,
+        'multiplier': user.multiplier,
+        'expires': user.multiplier_expires.isoformat() if user.multiplier_expires else None
     })
-
-
-@app.route('/multiplier-check')
-def multiplier_check():
-    multiplier = get_active_multiplier()
-    return jsonify({'multiplier': multiplier})
 
 @app.route('/leaderboard')
 def leaderboard():
@@ -194,6 +165,27 @@ def internal_server_error(error):
 
 with app.app_context():
     db.create_all()
+
+def random_multiplier_loop():
+    while True:
+        with app.app_context():  # Add this line to push an application context
+            users = User.query.all()
+            now = datetime.utcnow()
+
+            for user in users:
+                if user.multiplier_expires and user.multiplier_expires < now:
+                    user.multiplier = 1
+                    user.multiplier_expires = None
+
+                if random.randint(1, 100) == 1:
+                    user.multiplier = 2
+                    user.multiplier_expires = now + timedelta(seconds=30)
+                elif random.randint(1, 500) == 1:
+                    user.multiplier = 10
+                    user.multiplier_expires = now + timedelta(seconds=20)
+
+            db.session.commit()
+        time.sleep(1)  # Check every second
 
 if __name__ == '__main__':
     app.run(debug=True)

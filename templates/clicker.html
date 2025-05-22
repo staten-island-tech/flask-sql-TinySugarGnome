@@ -61,79 +61,79 @@
             margin-top: 2rem;
             color: green;
         }
+
+        .multiplier-bubble {
+            font-size: 3rem;
+            position: absolute;
+            top: 30%;
+            animation: pop 1s ease-out;
+            color: red;
+            z-index: 1000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.5); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
+        }
     </style>
 </head>
 <body>
 
     <h1>Clicker Game</h1>
 
-    <!-- Total Clicks Section -->
     <div class="total-clicks-container">
-        <p class="totalclicks">Total Clicks: <span id="total-clicks" class="nes-text is-success">{{ clicks }}</span></p>
+        <p>Total Clicks: <span id="total-clicks" class="nes-text is-success">{{ clicks }}</span></p>
     </div>
 
-    <!-- Multiplier Section -->
     <div class="multiplier-container">
-        <p id="multiplier-indicator">Multiplier: x1</p>
+        <p id="multiplier-indicator">Multiplier: x{{ multiplier }}</p>
     </div>
+    <div id="multiplier-bubble" class="multiplier-bubble hidden"></div>
 
-    <!-- Form Buttons Section -->
     <div class="nes-container with-title is-centered">
         <div class="form-buttons-container">
             <button id="click-btn" class="nes-btn is-primary">Click Me!</button>
 
-            <!-- Logout button -->
             <form action="{{ url_for('logout') }}" method="get">
                 <button type="submit" class="nes-btn is-error">Logout</button>
             </form>
             <form action="{{ url_for('leaderboard') }}" method="get">
-                <button type="submit" class="nes-btn custom-yellow-btn">Leaderboard</button>
+                <button type="submit" class="nes-btn">Leaderboard</button>
             </form>
         </div>
     </div>
 
     <script>
-        $(document).ready(function() {
-            // Function to check the active multiplier from the server
-            function checkMultiplier() {
+        $(document).ready(function () {
+            $('#click-btn').click(function () {
                 $.ajax({
-                    url: "{{ url_for('multiplier_check') }}",  // Call the multiplier-check route
-                    type: "GET",
-                    success: function(response) {
-                        // Update the multiplier display
+                    url: "{{ url_for('click') }}",
+                    type: "POST",
+                    success: function (response) {
+                        $('#total-clicks').text(response.clicks);
                         let multiplier = response.multiplier;
+
                         if (multiplier > 1) {
                             $('#multiplier-indicator').text('Multiplier: x' + multiplier);
+                            $('#multiplier-bubble').text('x' + multiplier + '!').removeClass('hidden');
+
+                            setTimeout(() => {
+                                $('#multiplier-bubble').addClass('hidden');
+                            }, 1000);
                         } else {
                             $('#multiplier-indicator').text('Multiplier: x1');
                         }
                     },
-                    error: function() {
-                        alert("Error: Unable to fetch multiplier.");
-                    }
-                });
-            }
-
-            // Trigger click event
-            $('#click-btn').click(function() {
-                $.ajax({
-                    url: "{{ url_for('click') }}",  // Route for clicking
-                    type: "POST",  // Send POST request
-                    success: function(response) {
-                        // Update the click count on the page
-                        $('#total-clicks').text(response.clicks);
-
-                        // Check and update the multiplier after each click
-                        checkMultiplier();
-                    },
-                    error: function() {
-                        alert("Error: Unable to process your click.");
+                    error: function () {
+                        alert("Error processing click.");
                     }
                 });
             });
-
-            // Call the checkMultiplier function to ensure the multiplier is updated on page load
-            checkMultiplier();
         });
     </script>
 

@@ -19,6 +19,7 @@
                 <th>Total Time</th>
                 <th>Multiplier</th>
                 <th>Multiplier Expires</th>
+                <th>Last Seen</th>
             </tr>
         </thead>
         <tbody>
@@ -31,10 +32,11 @@
                 <td>{{ user.total_time | round(2) }}</td>
                 <td>{{ user.multiplier }}</td>
                 <td>{{ user.multiplier_expires if user.multiplier_expires else 'N/A' }}</td>
+                <td>{{ user.last_seen.strftime('%Y-%m-%d %H:%M:%S') if user.last_seen else 'Never' }}</td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="6">No users found.</td>
+                <td colspan="8">No users found.</td>
             </tr>
             {% endfor %}
         </tbody>

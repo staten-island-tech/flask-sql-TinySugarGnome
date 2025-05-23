@@ -163,44 +163,50 @@ def page_not_found(error):
 def internal_server_error(error):
     return render_template('500.html'), 500
 
-
 def random_multiplier_loop():
     while True:
-        with app.app_context():  # Ensure Flask's app context is available
+        with app.app_context():
             users = User.query.all()
             now = datetime.utcnow()
 
             for user in users:
+                # Reset multiplier if expired
                 if user.multiplier_expires and user.multiplier_expires < now:
-                    user.multiplier = 1  # Reset multiplier when expired
+                    user.multiplier = 1
                     user.multiplier_expires = None
 
-                # Random multiplier logic
-                new_multiplier = user.multiplier  # Default to current multiplier
+                # Roll one chance value
+                roll = random.randint(1, 1000)
+                new_multiplier = None
+                duration = 0
 
-                if random.randint(1, 10) == 1:
-                    new_multiplier = 2
-                    user.multiplier_expires = now + timedelta(seconds=30)
-                elif random.randint(1, 50) == 1:
-                    new_multiplier = 10
-                    user.multiplier_expires = now + timedelta(seconds=20)
-                elif random.randint(1, 250) == 1:
-                    new_multiplier = 30
-                    user.multiplier_expires = now + timedelta(seconds=10)
-                elif random.randint(1, 500) == 1:
-                    new_multiplier = 50
-                    user.multiplier_expires = now + timedelta(seconds=15)
-                elif random.randint(1, 1000) == 1:
+                if roll == 1:
                     new_multiplier = 100
-                    user.multiplier_expires = now + timedelta(seconds=10)
+                    duration = 5
+                elif roll <= 3:  # 0.3%
+                    new_multiplier = 50
+                    duration = 5
+                elif roll <= 7:  # 0.7%
+                    new_multiplier = 30
+                    duration = 8
+                elif roll <= 27:  # 2%
+                    new_multiplier = 10
+                    duration = 7
+                elif roll <= 127:  # 10%
+                    new_multiplier = 2
+                    duration = 5
 
-                # Update multiplier only if the new one is greater than the current one
-                if new_multiplier > user.multiplier:
-                    user.multiplier = new_multiplier
-                    print(f'New multi: {user.multiplier}') 
+                if new_multiplier:
+                    if user.multiplier < new_multiplier:
+                        user.multiplier = new_multiplier #replace
+                        user.multiplier_expires = now + timedelta(seconds=duration) #add secs
+                        print(f"[{user.username}] New multiplier: {new_multiplier} for {duration}s")
+                    elif user.multiplier == new_multiplier and user.multiplier_expires: 
+                        user.multiplier_expires += timedelta(seconds=duration) #stack secs
+                        print(f"[{user.username}] Extended multiplier {new_multiplier} by {duration}s")
 
             db.session.commit()
-        time.sleep(1)  # Wait for 1 second before checking again
+        time.sleep(1)
 
 
 # Start the background thread when the app starts
